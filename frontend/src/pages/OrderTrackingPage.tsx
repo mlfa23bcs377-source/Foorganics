@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { trackOrder } from '../services/customerService';
 import { CustomerOrder } from '../types';
