@@ -35,7 +35,6 @@ const AdminAttendancePage: React.FC = () => {
 
   // ── Common state ────────────────────────────────────────────────────────────
   const [employees, setEmployees] = useState<Employee[]>([]);
-  const [loadingEmployees, setLoadingEmployees] = useState(true);
 
   // ── Daily tab ──────────────────────────────────────────────────────────────
   const [records, setRecords] = useState<AttendanceRecord[]>([]);
@@ -82,8 +81,7 @@ const AdminAttendancePage: React.FC = () => {
   useEffect(() => {
     getEmployees({ limit: 200 })
       .then((r) => setEmployees(r.employees))
-      .catch(() => addToast('Failed to load employees', 'error'))
-      .finally(() => setLoadingEmployees(false));
+      .catch(() => addToast('Failed to load employees', 'error'));
   }, [addToast]);
 
   // ── Daily attendance load ────────────────────────────────────────────────
@@ -111,7 +109,7 @@ const AdminAttendancePage: React.FC = () => {
   useRefreshOnNavigate('/labadmin/attendance', loadDaily);
 
   // ── Monthly report load ─────────────────────────────────────────────────
-  const loadMonthly = async () => {
+  const loadMonthly = useCallback(async () => {
     setLoadingMonthly(true);
     try {
       const res = await getMonthlyReport(monthlyYear, monthlyMonth);
@@ -121,12 +119,12 @@ const AdminAttendancePage: React.FC = () => {
     } finally {
       setLoadingMonthly(false);
     }
-  };
+  }, [monthlyYear, monthlyMonth, addToast]);
 
-  useEffect(() => { if (activeTab === 'monthly') loadMonthly(); }, [activeTab, monthlyYear, monthlyMonth]);
+  useEffect(() => { if (activeTab === 'monthly') loadMonthly(); }, [activeTab, loadMonthly]);
 
   // ── Employee report load ─────────────────────────────────────────────────
-  const loadEmpReport = async () => {
+  const loadEmpReport = useCallback(async () => {
     if (!selectedEmpId) return;
     setLoadingEmpReport(true);
     try {
@@ -139,9 +137,9 @@ const AdminAttendancePage: React.FC = () => {
     } finally {
       setLoadingEmpReport(false);
     }
-  };
+  }, [selectedEmpId, empReportStart, empReportEnd, addToast]);
 
-  useEffect(() => { if (activeTab === 'employee' && selectedEmpId) loadEmpReport(); }, [activeTab, selectedEmpId]);
+  useEffect(() => { if (activeTab === 'employee' && selectedEmpId) loadEmpReport(); }, [activeTab, selectedEmpId, loadEmpReport]);
 
   const openCreate = () => {
     setEditing(null);
